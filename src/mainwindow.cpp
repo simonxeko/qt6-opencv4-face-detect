@@ -5,8 +5,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
+    ui(new Ui::MainWindow) {
     ui->setupUi(this);
     detector = FaceDetector();
     intervalTimer = new QTimer(this);
@@ -14,25 +13,23 @@ MainWindow::MainWindow(QWidget *parent) :
     scene = new QGraphicsScene();
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     delete pixmap;
     delete scene;
     delete intervalTimer;
     delete ui;
 }
 
-void MainWindow::on_start_clicked()
-{
-    capture.open(-1);
+void MainWindow::on_start_clicked() {
+    capture.open(0);
     connect(intervalTimer, SIGNAL(timeout()), this, SLOT(capturing()));
     intervalTimer->start(33);
 }
 
-void MainWindow::capturing()
-{
+void MainWindow::capturing() {
     capture.read(frame);
     QImage result = detector.detect(frame);
+    result = result.mirrored(true, false);
     pixmap = new QPixmap(QPixmap::fromImage(result));
     scene = new QGraphicsScene(ui->graphicsView);
     scene->addPixmap(*pixmap);
@@ -40,8 +37,7 @@ void MainWindow::capturing()
     ui->graphicsView->setScene(scene);
 }
 
-void MainWindow::on_stop_clicked()
-{
+void MainWindow::on_stop_clicked() {
     intervalTimer->stop();
     disconnect(intervalTimer, SIGNAL(timeout()), this, SLOT(capturing()));
     capture.release();
